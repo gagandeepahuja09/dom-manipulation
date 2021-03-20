@@ -19,14 +19,23 @@ document.querySelector('.guess').value = 25 */
 // html tag
 
 let score = 20
+let highScore = 0
 
-let secretNum = Math.trunc(Math.random() * 20 + 1)
+const generateSecretNum = () => {
+  return Math.trunc(Math.random() * 20 + 1)
+}
+
+let secretNum = generateSecretNum()
+
+const setMsg = (message) => {
+  document.querySelector('.message').textContent = message
+}
 
 const resetScore = () => {
   score = 20
   document.querySelector('.score').textContent = score
   // generate secretNum
-  secretNum = Math.trunc(Math.random() * 20 + 1)
+  secretNum = generateSecretNum()
   // remove the guessed value
   document.querySelector('.guess').value = null
   // black color
@@ -36,35 +45,40 @@ const resetScore = () => {
   // remove the secret num
   document.querySelector('.number').textContent = '?' 
   // message change
-  document.querySelector('.message').textContent = 'Start guessing...'
+  setMsg('Start guessing...')
+}
+
+const handleSameNum = (guessedNum) => {
+  highScore = Math.max(score, highScore)
+  setMsg('🎉 Correct Number!')
+  document.querySelector('body').style.backgroundColor = '#60b347'
+  document.querySelector('.number').style.width = '32rem' 
+  document.querySelector('.number').textContent = guessedNum.toString()
+  document.querySelector('.highscore').textContent = highScore.toString()
+}
+
+const handleDiffNum = (guessedNum) => {
+  score = Math.max(score - 1, 0)
+  const diffScoreStr = (score === 0) ? 
+  '🧨 Sorry You Lost the Game! Better Luck Next Time' 
+  : (guessedNum > secretNum) ? '📈 Too High!' : '📉 Too Low!'
+  setMsg(diffScoreStr)
 }
 
 document.querySelector('.check').addEventListener('click', () => {
   const guessedNum = Number(document.querySelector('.guess').value)
   console.log(guessedNum, secretNum)
   if (!guessedNum) {
-    document.querySelector('.message').textContent = '⛔️ No number entered!'
+    setMsg('⛔️ No number entered!')
   } else if (guessedNum === secretNum) {
     // setTimeout(resetScore, 5000)
-    document.querySelector('.message').textContent = '🎉 Correct Number!'
-    document.querySelector('body').style.backgroundColor = '#60b347'
-    document.querySelector('.number').style.width = '32rem' 
-    document.querySelector('.number').textContent = guessedNum.toString()
-  } else if (guessedNum > secretNum) {
-    score = Math.max(score - 1, 0)
-    document.querySelector('.message').textContent = (score === 0) 
-    ? '🧨 Sorry You Lost the Game! Better Luck Next Time' :
-    '📈 Too High!'
+    handleSameNum(guessedNum)
   } else {
-    score = Math.max(score - 1, 0)
-    document.querySelector('.message').textContent = (score === 0) 
-    ? '🧨 Sorry You Lost the Game! Better Luck Next Time' :
-    '📉 Too Low!'
+    handleDiffNum(guessedNum)
   }
   document.querySelector('.score').textContent = score
 })
 
 document.querySelector('.again').addEventListener('click', () => {
-  // show 20 score
   resetScore()
 })
